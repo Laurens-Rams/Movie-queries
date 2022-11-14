@@ -18,6 +18,7 @@ const movies = MOVIES
 
 watch(input_xMovies, () => {
   pageNumber.value = 1;
+  console.log("changed")
 });
 
 function calculateStars(movie){
@@ -79,6 +80,7 @@ const showMoviesPerpage = computed(() => {
     .slice(start, end);
 })
 
+
 const filteredMoviesAv = computed(() => {
   return avergageScoreAll(filterMovie.value);
 });
@@ -113,8 +115,6 @@ function convertGenre(movie){
 
   if (['sci-fi', 'science fiction'].indexOf(newMovieList) >= 0) {
         return 'SCIENCE FICTION'
-  } else if (movie.indexOf(newMovieList) >= 0) {
-        return movie.toUpperCase()
   }else {
         return newMovieList.toUpperCase()
   }
@@ -126,6 +126,15 @@ watch(search, (newInput) => {
   }
 });
 
+// If I add watch yearsSelected, the years selectin is broke. Why is that?
+watch(input_xMovies, () => {
+  pageNumber.value = 1;
+});
+
+watch(yearsSelected, () => {
+  pageNumber.value = 1;
+});
+pageCount
 </script>
 <template>
   <div class="search_field">
@@ -146,7 +155,7 @@ watch(search, (newInput) => {
       v-model="input_xMovies"
       placeholder="Enter how many movies you want to see." 
       /><label>Movies per page.</label>
-      <p id="pages">Page {{pageNumber}} / {{ pageCount + 1 }}</p>
+      <p id="pages">Page {{pageNumber}} / {{ pageCount }}</p>
       <div class="multiselectors">
         <div class="selection">
           <select  v-model="yearsSelected" multiple>
