@@ -1,0 +1,167 @@
+<script setup>
+
+// TODO get how many movies we have 
+import { ref, computed, watch, nextTick } from 'vue';
+import movies from './assets/movies.json';
+
+const input_xMovies = ref(5)
+const nextButtonPressed = ref(0)
+const pageNumber = ref(0)
+const search = ref("")
+const yearsSelection = ref([])
+
+const yearsSelected = ref([]);
+const filterTitle = ref('');
+
+
+function calculateStars(movie){
+  return Math.floor(movie.score / 20)
+}
+
+watch(input_xMovies, () => {
+  pageCount.value = 1;
+});
+
+function firstPage(){
+  pageNumber.value = 0
+}
+
+function nextPage(){
+  if (pageNumber.value < pageCount.value) {
+    pageNumber.value += 1;
+  }
+}
+
+function prevPage(){
+  if (pageNumber.value > 0) {
+    pageNumber.value -= 1;
+  }
+}
+
+function lastPage(){
+  pageNumber.value = pageCount.value;
+}
+
+const pageCount = computed(() => {
+      return Math.ceil(movies.length / input_xMovies.value - 1); // get how many movies we have
+})
+
+
+// THIS I DID NOT DOQ I dont understand the whole next function :(
+const uniqueElementsBy = (arr, fn) =>
+  arr.reduce((acc, v) => {
+    if (!acc.some(x => fn(v, x))) acc.push(v);
+    return acc;
+}, []);
+
+
+const filteredMovies = computed(() => {
+  return 
+})
+
+function filterByYears(movie){
+  return yearsSelected.value.includes(movie.year);
+}
+
+function filterByTitle(movie){
+  if(search.value.lenght < 2) return true;
+  // Dune containing 
+ // return movie.title.includes(filterTitle.value);
+ 
+  return movies.filter(movie => {
+        return movie.title.toLowerCase().indexOf(search.value.toLowerCase()) > -1
+      })
+}
+
+
+
+const movieSnapshot = computed(() => {
+
+    const start = pageNumber.value * input_xMovies.value
+    const end = start + input_xMovies.value;
+
+    return movies
+    .filter(filterByYears)
+    .filter(filterByTitle)
+    .slice(start, end);
+    // add filters here
+})
+
+// Average Score
+const sum = movies.reduce((acc, item) => {
+    return acc + parseInt(item.score) / movies.length
+  }, 0);
+
+
+
+// filter genres
+function filterBy(movies, sci_fi) {
+    let set = new Set(sci_fi.map(({genre}) => genre)); // for faster lookup
+    return movies.filter(({genre}) => set.has(genre));
+}
+
+const sci_fi = [{genre: 'sci-fi',}, {genre: 'Science Fiction',}];
+
+console.log(filterBy(movies, sci_fi));
+
+
+  
+</script>
+
+<template>
+  <h3>Average Score: {{Math.round(sum)}}</h3>
+  <div class="search_field">
+    <form name="search" @submit.prevent="SearchMovies">
+        <input type="text" class="input" placeholder="What are you looking for?" v-model="search"/>
+    </form>
+  </div> 
+  <div class="list_settings">
+    <button  :disabled="pageNumber === 0" @click="firstPage" class="next">FIRST</button>
+    <button  :disabled="pageNumber === 0" @click="prevPage" class="next">&larr;</button>
+    <button  :disabled="pageNumber === pageCount" @click="nextPage" class="next">&rarr;</button>
+    <button  :disabled="pageNumber === pageCount" @click="lastPage" class="next">LAST</button>
+  </div>
+
+  <div class="list_settings">
+    <input 
+      class="xMovies"
+      v-model="input_xMovies"
+      type="number" 
+      placeholder="Enter how many movies you want to see." 
+      /><label>Movies per page.</label>
+      <p id="pages">Page {{pageNumber}} / {{ pageCount }}</p>
+      <div class="multiselectors">
+        <div class="selection">
+          <select  v-model="yearsSelected" multiple>
+              <option v-for="movie in movies" :key="movies.id">
+                {{ movie.year }}
+              </option>
+          </select>
+        </div>
+        <div class="selection">
+          <select  v-model="genreSelection" multiple>
+              <option v-for="movie in movies" :key="movies.id">
+                {{ movie.genre }}
+              </option>
+          </select>
+        </div>
+      </div>
+  </div>
+    <ul class="all_cards">
+        <li v-for="movie in movieSnapshot" :key="movies.id">
+          <div class="movie_card">
+            <div class="picture"><img :src="movie.picture" alt="test"/></div>
+              <div class="details">
+                <p class="title">{{ movie.title }}</p>
+                <p class="year">{{ movie.year }}</p>
+                <p class="genre">{{ movie.genre }}</p>
+                <div class="score"><p class="stars" v-for="i in calculateStars(movie)">☆</p></div>
+              </div>
+          </div>
+        </li>
+        </ul>
+</template>
+
+<style scoped>
+/* TODO: */
+</style>
